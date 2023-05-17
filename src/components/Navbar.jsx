@@ -2,7 +2,7 @@ import React from 'react';
 import logo from '/logo.png';
 import { AiOutlineSearch } from 'react-icons/ai';
 
-export const Navbar = () => {
+export const Navbar = (props) => {
   return (
     <div className="w-full h-36 sm:h-48 px-4 mx-auto bg-cyan-900 flex flex-col justify-center gap-4">
       <div className="flex items-center justify-center ">
@@ -16,6 +16,9 @@ export const Navbar = () => {
         <input
           type="text"
           placeholder="Kërko për një libër"
+          onChange={(event) => {
+            props.setQuery(event.target.value);
+          }}
           className="bg-transparent w-full outline-none font-montserrat"
         />
       </div>
