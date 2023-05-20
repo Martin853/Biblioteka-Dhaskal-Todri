@@ -7,7 +7,7 @@ export const ChatbotInterface = (props) => {
   const inputRef = useRef(null);
   const [messages, setMessages] = useState([]);
 
-  const sendMessage = (event) => {
+  const sendMessage = () => {
     const inputValue = inputRef.current.value;
 
     if (inputValue.trim() !== '') {
