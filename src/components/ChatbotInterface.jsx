@@ -11,10 +11,33 @@ export const ChatbotInterface = (props) => {
     const inputValue = inputRef.current.value;
 
     if (inputValue.trim() !== '') {
-      setMessages([...messages, inputValue]);
+      const message = {
+        message: inputValue,
+        sender: 'user',
+      };
+
+      setMessages([...messages, message]);
+
+      sendRequest(message.message);
 
       inputRef.current.value = '';
     }
+  };
+
+  const sendRequest = (message) => {
+    const url = 'https://api.openai.com/v1/chat/completions';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer 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`,
+    };
+    const data = {
+      model: 'text-davinci-003',
+      messages: [{ role: 'user', content: message }],
+    };
+
+    axios.post(url, data, { headers: headers }).then((response) => {
+      console.log(response);
+    });
   };
 
   const handleKeyPress = (event) => {
@@ -37,9 +60,13 @@ export const ChatbotInterface = (props) => {
         />
       </div>
       <div className="bg-gray-300 w-full h-5/6 flex flex-col py-2 px-2 mx-auto gap-2 overflow-x-auto">
-        {messages.map((message, index) => (
-          <UserMessage key={index} message={message} />
-        ))}
+        {messages.map((message, index) => {
+          if (message.sender === 'user') {
+            return <UserMessage message={message.message} key={index} />;
+          } else if (message.sender === 'bot') {
+            return <BotMessage message={message.message} key={index} />;
+          }
+        })}
       </div>
       <div className="flex h-8 justify-between items-center px-2 gap-2">
         <input
@@ -49,7 +76,10 @@ export const ChatbotInterface = (props) => {
           ref={inputRef}
           onKeyPress={handleKeyPress}
         />
-        <AiOutlineSend className="cursor-pointer" onClick={sendMessage} />
+        <AiOutlineSend
+          className="cursor-pointer"
+          onClick={() => sendMessage()}
+        />
       </div>
     </div>
   );
