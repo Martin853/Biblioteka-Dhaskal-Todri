@@ -2,12 +2,15 @@ import React, { useRef, useState } from 'react';
 import { AiFillCloseCircle, AiOutlineSend } from 'react-icons/ai';
 import { UserMessage } from './UserMessage';
 import { BotMessage } from './BotMessage';
+import { BOOKS } from '../Books';
+
+const bookList = BOOKS;
 
 export const ChatbotInterface = (props) => {
   const inputRef = useRef(null);
   const [messages, setMessages] = useState([]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const inputValue = inputRef.current.value;
 
     if (inputValue.trim() !== '') {
@@ -16,29 +19,58 @@ export const ChatbotInterface = (props) => {
         sender: 'user',
       };
 
-      setMessages([...messages, message]);
+      const newMessages = [...messages, message];
 
-      sendRequest(message.message);
+      setMessages(newMessages);
 
       inputRef.current.value = '';
+
+      await proccesMessage(newMessages);
     }
   };
 
-  const sendRequest = (message) => {
-    const url = 'https://api.openai.com/v1/chat/completions';
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer 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`,
-    };
-    const data = {
-      model: 'text-davinci-003',
-      messages: [{ role: 'user', content: message }],
+  async function proccesMessage(chatMessage) {
+    let apiMessages = chatMessage.map((messageObject) => {
+      let role = '';
+      if (messageObject.sender === 'ChatGPT') {
+        role = 'assistant';
+      } else {
+        role = 'user';
+      }
+      return { role: role, content: messageObject.message };
+    });
+
+    const systemMessage = {
+      role: 'system',
+      content: `Set language to albanian \n You are a chatbot assistant who will help the user find a book according to his preferences \n Try to be as much polite as possible \n Book List: ${BOOKS}\n Only reccomend books which are available in this list.`,
     };
 
-    axios.post(url, data, { headers: headers }).then((response) => {
-      console.log(response);
-    });
-  };
+    const apiRequestBody = {
+      model: 'gpt-3.5-turbo',
+      messages: [systemMessage, ...apiMessages],
+    };
+
+    await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + import.meta.env.VITE_OPEN_AI_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(apiRequestBody),
+    })
+      .then((data) => {
+        return data.json();
+      })
+      .then((data) => {
+        setMessages([
+          ...chatMessage,
+          {
+            message: data.choices[0].message.content,
+            sender: 'bot',
+          },
+        ]);
+      });
+  }
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -76,10 +108,7 @@ export const ChatbotInterface = (props) => {
           ref={inputRef}
           onKeyPress={handleKeyPress}
         />
-        <AiOutlineSend
-          className="cursor-pointer"
-          onClick={() => sendMessage()}
-        />
+        <AiOutlineSend className="cursor-pointer" onClick={sendMessage} />
       </div>
     </div>
   );
