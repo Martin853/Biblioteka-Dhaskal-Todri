@@ -42,7 +42,7 @@ export const ChatbotInterface = (props) => {
 
     const systemMessage = {
       role: 'system',
-      content: `Set language to albanian \n You are a chatbot assistant who will help the user find a book according to his preferences \n Try to be as much polite as possible \n Book List: ${BOOKS}\n Only reccomend books which are available in this list.`,
+      content: `Set language to albanian \n You are a chatbot assistant who will help the user find a book according to his preferences \n Try to be as much polite as possible \n Book List: ${BOOKS}\n Only reccomend books which are available in this list that i provided you don't make up the books.`,
     };
 
     const apiRequestBody = {
