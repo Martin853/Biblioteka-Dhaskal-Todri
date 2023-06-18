@@ -1,14 +1,21 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { AiFillCloseCircle, AiOutlineSend } from 'react-icons/ai';
 import { UserMessage } from './UserMessage';
 import { BotMessage } from './BotMessage';
 import { BOOKS } from '../Books';
 
-const bookList = BOOKS;
-
 export const ChatbotInterface = (props) => {
   const inputRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const sendMessage = async () => {
     const inputValue = inputRef.current.value;
@@ -42,7 +49,7 @@ export const ChatbotInterface = (props) => {
 
     const systemMessage = {
       role: 'system',
-      content: `Set language to albanian \n You are a chatbot assistant who will help the user find a book according to his preferences \n Try to be as much polite as possible \n Book List: ${BOOKS}\n Only reccomend books which are available in this list that i provided you don't make up the books.`,
+      content: `Set language to albanian \n You are a chatbot assistant who will help the user find a book according to his preferences \n Try to be as much polite as possible \n Book List: Hamleti-Shakespeare, Brenga Ballkanit-Edith Durham, Vepra 1,2,3-Ismail Kadare, Hyrje ne psikoanalize 1-Sigmund Freud, Hyrje ne psikoanalize 2-Sigmun Freud, Gjenerali i ushtrise se vdekur-Ismail Kadare, Kronike ne gur-Ismail ne Gur \n  Only reccomend books which are available in this list that i provided you.`,
     };
 
     const apiRequestBody = {
@@ -79,7 +86,7 @@ export const ChatbotInterface = (props) => {
   };
 
   return (
-    <div className="fixed bottom-10 right-10 h-80 w-52 bg-white border border-neutral-800 rounded-lg flex flex-col md:h-96 md:w-64">
+    <div className="fixed bottom-10 right-10 h-96 w-60 bg-white border border-neutral-800 rounded-lg flex flex-col md:h-96 md:w-64">
       <div className="w-full h-10 bg-cyan-900 flex justify-between items-center px-2 mx-auto rounded-t-md">
         <h1 className="font-montserrat text-white text-lg font-semibold">
           ChatBot
@@ -99,6 +106,7 @@ export const ChatbotInterface = (props) => {
             return <BotMessage message={message.message} key={index} />;
           }
         })}
+        <div ref={messagesEndRef} />
       </div>
       <div className="flex h-8 justify-between items-center px-2 gap-2">
         <input
