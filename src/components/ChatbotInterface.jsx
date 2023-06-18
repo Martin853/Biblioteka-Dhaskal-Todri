@@ -8,6 +8,7 @@ export const ChatbotInterface = (props) => {
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([]);
+  const [isBotTyping, setIsBotTyping] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -37,6 +38,8 @@ export const ChatbotInterface = (props) => {
   };
 
   async function proccesMessage(chatMessage) {
+    setIsBotTyping(true);
+
     let apiMessages = chatMessage.map((messageObject) => {
       let role = '';
       if (messageObject.sender === 'ChatGPT') {
@@ -76,6 +79,8 @@ export const ChatbotInterface = (props) => {
             sender: 'bot',
           },
         ]);
+
+        setIsBotTyping(false);
       });
   }
 
@@ -106,6 +111,13 @@ export const ChatbotInterface = (props) => {
             return <BotMessage message={message.message} key={index} />;
           }
         })}
+
+        {isBotTyping && (
+          <div className=" font-montserrat text-gray-500 text-xs italic">
+            Chatbot-i po shkruan...
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
       <div className="flex h-8 justify-between items-center px-2 gap-2">
